@@ -191,7 +191,17 @@ class CommandLineEmbedder:
             cmd_line = self.replace_static_files(cmd_line, gwfiles)
         file_name = job_name + self.attach_pseudo_file_params(actual_lazy_vars)
 
-        if len(file_name) > PANDA_MAX_LEN_INPUT_FILE:
+        max_char = "IDDS_MAX_NAME_LENGTH"
+        panda_url = "PANDA_URL"
+        is_usdf = False
+        PANDA_MAX_DB_VCHAR = PANDA_MAX_LEN_INPUT_FILE
+        if panda_url in os.environ:
+            PANDA_instance = os.environ[panda_url]
+            if "doma" not in PANDA_instance:
+                is_usdf = True
+        if max_char in os.environ and is_usdf:
+            PANDA_MAX_DB_VCHAR = int(os.environ[max_char])
+        if len(file_name) > PANDA_MAX_DB_VCHAR:
             _LOG.error(f"Too long pseudo input filename: {file_name}")
             raise RuntimeError(
                 f"job pseudo input file name contains more than {PANDA_MAX_LEN_INPUT_FILE} symbols. Aborting."
