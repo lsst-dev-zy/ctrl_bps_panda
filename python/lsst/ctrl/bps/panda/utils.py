@@ -39,11 +39,14 @@ import binascii
 import concurrent.futures
 import logging
 import os
+import tarfile
+import uuid
 
 import idds.common.utils as idds_utils
 import pandaclient.idds_api
 from idds.doma.workflowv2.domapandawork import DomaPanDAWork
 from idds.workflowv2.workflow import AndCondition
+from idds.workflowv2.workflow import Workflow as IDDS_client_workflow
 from lsst.ctrl.bps import BpsConfig, GenericWorkflow, GenericWorkflowJob
 from lsst.ctrl.bps.panda.cmd_line_embedder import CommandLineEmbedder
 from lsst.ctrl.bps.panda.constants import (
@@ -595,3 +598,109 @@ def add_idds_work(config, generic_workflow, idds_workflow):
         _LOG.info("Successfully recovered.")
 
     return files_to_pre_stage, dag_sink_work, task_count
+
+
+def create_archive_file(submit_path, archive_filename, files):
+    if not archive_filename.startswith("/"):
+        archive_filename = os.path.join(submit_path, archive_filename)
+
+    with tarfile.open(archive_filename, "w:gz", dereference=True) as tar:
+        for local_file in files:
+            base_name = os.path.basename(local_file)
+            tar.add(local_file, arcname=os.path.basename(base_name))
+    return archive_filename
+
+
+def copy_files_to_pandacache(filename):
+    from pandaclient import Client
+
+    attempt = 0
+    max_attempts = 3
+    done = False
+    while attempt < max_attempts and not done:
+        status, out = Client.putFile(filename, True)
+        if status == 0:
+            done = True
+    print(f"copy_files_to_pandacache: status: {status}, out: {out}")
+    if out.startswith("NewFileName:"):
+        # found the same input sandbox to reuse
+        filename = out.split(":")[-1]
+    elif out != "True":
+        print(out)
+        return None
+
+    filename = os.path.basename(filename)
+    cache_path = os.path.join(os.environ["PANDACACHE_URL"], "cache")
+    filename = os.path.join(cache_path, filename)
+    return filename
+
+
+def get_task_parameter(config, remote_build, key):
+    search_opt = {"replaceVars": True, "expandEnvVars": False, "replaceEnvVars": False, "required": False}
+    _, value = remote_build.search(key, search_opt)
+    if not value:
+        _, value = config.search(key, search_opt)
+    return value
+
+
+def create_idds_build_workflow(config_file, config, remote_build):
+    _, files = remote_build.search("files", opt={"default": []})
+    submit_path = config["submitPath"]
+    files.append(config_file)
+    archive_filename = "jobO.%s.tar.gz" % str(uuid.uuid4())
+    archive_filename = create_archive_file(submit_path, archive_filename, files)
+    _LOG.info("archive file name: %s" % archive_filename)
+    remote_filename = copy_files_to_pandacache(archive_filename)
+    _LOG.info("pandacache file: %s" % remote_filename)
+
+    _LOG.info(type(remote_build))
+    search_opt = {"replaceVars": True, "expandEnvVars": False, "replaceEnvVars": False, "required": False}
+    cvals = {"LSST_VERSION": get_task_parameter(config, remote_build, "LSST_VERSION")}
+    cvals["custom_lsst_setup"] = get_task_parameter(config, remote_build, "custom_lsst_setup")
+    search_opt["curvals"] = cvals
+    _, executable = remote_build.search("runnerCommand", opt=search_opt)
+    _LOG.info("executable: %s" % str(executable))
+    executable = executable.replace("_download_cmd_line_", remote_filename)
+    executable = executable.replace("_build_cmd_line_", config_file)
+    _LOG.info("executable: %s" % executable)
+
+    task_cloud = get_task_parameter(config, remote_build, "computeCloud")
+    task_site = get_task_parameter(config, remote_build, "computeSite")
+    task_queue = get_task_parameter(config, remote_build, "queue")
+    task_rss = get_task_parameter(config, remote_build, "requestMemory")
+    nretries = get_task_parameter(config, remote_build, "numberOfRetries")
+    _LOG.info("requestMemory: %s", task_rss)
+    _LOG.info("Cloud: %s", task_cloud)
+    _LOG.info("Site: %s", task_site)
+    _LOG.info("Queue: %s", task_queue)
+    # TODO: fill other parameters based on config
+    build_work = DomaPanDAWork(
+        executable=executable,
+        task_type="lsst_build",
+        primary_input_collection={"scope": "pseudo_dataset", "name": "pseudo_input_collection#1"},
+        output_collections=[{"scope": "pseudo_dataset", "name": "pseudo_output_collection#1"}],
+        log_collections=[],
+        dependency_map=None,
+        task_name="build_task",
+        task_queue=task_queue,
+        encode_command_line=True,
+        prodSourceLabel="managed",
+        task_log={
+            "dataset": "PandaJob_#{pandaid}/",
+            "destination": "local",
+            "param_type": "log",
+            "token": "local",
+            "type": "template",
+            "value": "log.tgz",
+        },
+        task_rss=task_rss if task_rss else PANDA_DEFAULT_RSS,
+        task_cloud=task_cloud,
+        task_site=task_site,
+        maxattempt=nretries if nretries > 0 else PANDA_DEFAULT_MAX_ATTEMPTS,
+    )
+
+    workflow = IDDS_client_workflow()
+
+    workflow.add_work(build_work)
+    workflow.name = config["bps_defined"]["uniqProcName"]
+    return workflow

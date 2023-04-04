@@ -1,6 +1,6 @@
 # An example bps submission yaml
 # Need to setup USDF before submitting the yaml
-# source setup_panda.sh w_2022_32
+# source setup_lsst_panda.sh w_2022_32
 
 LSST_VERSION: w_2022_32
 

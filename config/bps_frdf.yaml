@@ -1,0 +1,50 @@
+# This yaml evolves with the progress of the PanDA deployment
+
+includeConfigs:
+- ${CTRL_BPS_PANDA_DIR}/config/bps_panda.yaml
+
+project: dev
+campaign: quick
+computeCloud: EU
+computeSite: CC-IN2P3
+s3EndpointUrl: "https://storage.googleapis.com"
+payloadFolder: payload
+fileDistributionEndPoint: "file://${LSST_RUN_TEMP_SPACE}/{operator}/panda_cache_box/{payloadFolder}/{uniqProcName}/"
+fileDistributionEndPointDefault: "file:///sps/lsst/users/lsstgrid/{operator}/panda_cache_box/{payloadFolder}/{uniqProcName}/"
+
+# location of main butler repo at USDF
+payload:
+  butlerConfig: panda-test-med-1
+
+# Job environment setup
+custom_lsst_setup: ""
+setupLSSTEnv: >
+  unset PYTHONPATH;
+  source /cvmfs/sw.lsst.eu/linux-x86_64/lsst_distrib/{LSST_VERSION}/loadLSST.bash;
+  setup lsst_distrib;
+  {custom_lsst_setup}
+
+# Other job variables
+jobInitDir: "`pwd`"
+jobLogDir: "{jobInitDir}"
+jobContainer: >
+  /bin/bash -c "{payloadCommand}" >&2;
+jobCleanup: "rm -fr EXEC_REPO-*;"
+
+
+# Specify memory request for executionButler, pipetaskInit and forcedPhotCoadd, placeholder for now
+requestMemory: 2048          # PanDA does the scheduling based on memory request
+executionButler:
+  requestMemory: 7000
+  queue: "CC-IN2P3_Rubin_Merge"
+
+finalJob:
+  requestMemory: 7000
+  queue: "CC-IN2P3_Rubin_Merge"
+
+pipetask:
+  pipetaskInit:
+    requestMemory: 4000
+
+  forcedPhotCoadd:
+    requestMemory: 4000
