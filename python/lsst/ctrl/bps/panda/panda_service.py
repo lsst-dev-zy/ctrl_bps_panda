@@ -64,11 +64,14 @@ class PanDAService(BaseWmsService):
         workflow.write(out_prefix)
         return workflow
 
-    def submit(self, workflow, config=None, remote_build=None, config_file=None):
+    def submit(self, workflow, **kwargs):
+        config = kwargs["config"] if "config" in kwargs else None
+        remote_build = kwargs["remote_build"] if "remote_build" in kwargs else None
+
         if config and remote_build:
             _LOG.info("remote build")
 
-            idds_build_workflow = create_idds_build_workflow(config_file, config, remote_build)
+            idds_build_workflow = create_idds_build_workflow(**kwargs)
             idds_client = get_idds_client(self.config)
             ret = idds_client.submit_build(idds_build_workflow, username=None, use_dataset_name=False)
             _LOG.debug("iDDS client manager submit returned = %s", ret)

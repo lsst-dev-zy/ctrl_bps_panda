@@ -1,4 +1,4 @@
-# This yaml evolves with the progress of the PanDA deployment
+# BPS PanDA configuration for FrDF
 
 includeConfigs:
 - ${CTRL_BPS_PANDA_DIR}/config/bps_panda.yaml

@@ -61,9 +61,12 @@ def download_extract_archive(filename):
     print("Remove %s" % full_output_filename)
 
 
-def create_idds_workflow(config_file):
+def create_idds_workflow(config_file, compute_site):
     """Create pipeline workflow at remote site"""
     _LOG.info("Starting building process")
+    kwargs = {}
+    if compute_site:
+        kwargs['compute_site'] = compute_site
     with time_this(
         log=_LOG,
         level=logging.INFO,
@@ -73,7 +76,7 @@ def create_idds_workflow(config_file):
         mem_unit=DEFAULT_MEM_UNIT,
         mem_fmt=DEFAULT_MEM_FMT,
     ):
-        wms_workflow_config, wms_workflow = prepare_driver(config_file)
+        wms_workflow_config, wms_workflow = prepare_driver(config_file, **kwargs)
         _, when_create = wms_workflow_config.search(".executionButler.whenCreate")
         if when_create.upper() == "SUBMIT":
             _, execution_butler_dir = wms_workflow_config.search(".bps_defined.executionButlerDir")
@@ -98,6 +101,8 @@ download_extract_archive(remote_filename)
 request_id = os.environ.get("IDDS_BUILD_REQUEST_ID", None)
 signature = os.environ.get("IDDS_BUIL_SIGNATURE", None)
 config_file = sys.argv[2]
+sys_argv_length = len(sys.argv)
+compute_site = sys.argv[3] if sys_argv_length > 3 else None
 
 if request_id is None:
     print("IDDS_BUILD_REQUEST_ID is not defined.")
@@ -108,12 +113,13 @@ if signature is None:
 
 print(f"INFO: start {datetime.datetime.utcnow()}")
 print(f"INFO: config file: {config_file}")
+print(f"INFO: compute site: {compute_site}")
 
 current_dir = os.getcwd()
 
 print("INFO: current dir: %s" % current_dir)
 
-config, bps_workflow = create_idds_workflow(config_file)
+config, bps_workflow = create_idds_workflow(config_file, compute_site)
 idds_workflow = bps_workflow.idds_client_workflow
 
 _, max_copy_workers = config.search("maxCopyWorkers", opt={"default": PANDA_DEFAULT_MAX_COPY_WORKERS})
