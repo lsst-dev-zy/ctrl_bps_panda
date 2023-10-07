@@ -24,4 +24,4 @@ remoteBuild:
     export PANDA_URL=$PANDA_URL_SSL;
     export PANDA_BEHIND_REAL_LB=true;
     {custom_lsst_setup}
-    python3 ${CTRL_BPS_PANDA_DIR}/python/lsst/ctrl/bps/panda/edgenode/build_cmd_line_decoder.py _download_cmd_line_ _build_cmd_line_
+    python3 ${CTRL_BPS_PANDA_DIR}/python/lsst/ctrl/bps/panda/edgenode/build_cmd_line_decoder.py _download_cmd_line_ _build_cmd_line_ _compute_site_
