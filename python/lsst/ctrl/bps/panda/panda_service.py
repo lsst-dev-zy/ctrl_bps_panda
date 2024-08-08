@@ -95,6 +95,9 @@ class PanDAService(BaseWmsService):
             lsst_temp = "LSST_RUN_TEMP_SPACE"
             if lsst_temp in file_distribution_uri and lsst_temp not in os.environ:
                 file_distribution_uri = self.config["fileDistributionEndPointDefault"]
+            protocol_pattern = re.compile(r"^[a-zA-Z][a-zA-Z\d+\-.]*://")
+            if not protocol_pattern.match(file_distribution_uri):
+                file_distribution_uri = "file://" + file_distribution_uri
             copy_files_for_distribution(workflow.files_to_pre_stage, file_distribution_uri, max_copy_workers)
 
             idds_client = get_idds_client(self.config)

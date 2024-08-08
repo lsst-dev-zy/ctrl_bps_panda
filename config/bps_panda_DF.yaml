@@ -8,7 +8,7 @@ project: dev
 campaign: quick
 s3EndpointUrl: "https://storage.googleapis.com"
 payloadFolder: payload
-fileDistributionEndPoint: "file://${LSST_RUN_TEMP_SPACE}/{operator}/panda_cache_box/{payloadFolder}/{uniqProcName}/"
+fileDistributionEndPoint: "${LSST_RUN_TEMP_SPACE}/panda_cache_box/{payloadFolder}/{uniqProcName}/"
 
 # location of main butler repo at USDF
 payload:
