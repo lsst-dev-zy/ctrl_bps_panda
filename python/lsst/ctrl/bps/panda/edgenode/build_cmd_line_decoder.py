@@ -138,8 +138,9 @@ config, bps_workflow = create_idds_workflow(config_file, compute_site)
 idds_workflow = bps_workflow.idds_client_workflow
 
 _, max_copy_workers = config.search("maxCopyWorkers", opt={"default": PANDA_DEFAULT_MAX_COPY_WORKERS})
+file_distribution_uri = ResourcePath(config["fileDistributionEndPoint"])
 copy_files_for_distribution(
-    bps_workflow.files_to_pre_stage, config["fileDistributionEndPoint"], max_copy_workers
+    bps_workflow.files_to_pre_stage, file_distribution_uri, max_copy_workers
 )
 
 idds_client = get_idds_client(config)
