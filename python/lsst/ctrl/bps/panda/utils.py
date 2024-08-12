@@ -93,10 +93,11 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
     for local_pfn in files_to_stage.values():
         folder_name = os.path.basename(os.path.normpath(local_pfn))
         if os.path.isdir(local_pfn):
+            folder_uri = file_distribution_uri.join(folder_name, forceDirectory=True)
             files_in_folder = ResourcePath.findFileResources([local_pfn])
             for file in files_in_folder:
                 file_name = file.basename()
-                files_to_copy[file] = file_distribution_uri.join(folder_name, file_name)
+                files_to_copy[file] = folder_uri.join(file_name)
         else:
             files_to_copy[ResourcePath(local_pfn)] = file_distribution_uri.join(folder_name)
   
