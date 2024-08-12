@@ -98,7 +98,9 @@ class PanDAService(BaseWmsService):
             if lsst_temp in file_distribution_uri and lsst_temp not in os.environ:
                 file_distribution_uri = self.config["fileDistributionEndPointDefault"]
 
-            copy_files_for_distribution(workflow.files_to_pre_stage, ResourcePath(file_distribution_uri), max_copy_workers)
+            copy_files_for_distribution(
+                workflow.files_to_pre_stage, ResourcePath(file_distribution_uri), max_copy_workers
+            )
 
             idds_client = get_idds_client(self.config)
             ret = idds_client.submit(workflow.idds_client_workflow, username=None, use_dataset_name=False)
