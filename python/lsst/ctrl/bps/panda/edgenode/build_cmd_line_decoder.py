@@ -19,6 +19,7 @@ from lsst.ctrl.bps.drivers import prepare_driver
 from lsst.ctrl.bps.panda.constants import PANDA_DEFAULT_MAX_COPY_WORKERS
 from lsst.ctrl.bps.panda.utils import copy_files_for_distribution, get_idds_client
 from lsst.utils.timer import time_this
+from lsst.resources import ResourcePath
 
 logging.basicConfig(
     stream=sys.stdout,
