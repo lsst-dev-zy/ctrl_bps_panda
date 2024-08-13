@@ -48,7 +48,6 @@ from lsst.ctrl.bps.panda.utils import (
     get_idds_client,
     get_idds_result,
 )
-
 from lsst.resources import ResourcePath
 
 _LOG = logging.getLogger(__name__)
@@ -97,9 +96,10 @@ class PanDAService(BaseWmsService):
             lsst_temp = "LSST_RUN_TEMP_SPACE"
             if lsst_temp in file_distribution_uri and lsst_temp not in os.environ:
                 file_distribution_uri = self.config["fileDistributionEndPointDefault"]
-
             copy_files_for_distribution(
-                workflow.files_to_pre_stage, ResourcePath(file_distribution_uri), max_copy_workers
+                workflow.files_to_pre_stage,
+                ResourcePath(file_distribution_uri, forceDirectory=True),
+                max_copy_workers,
             )
 
             idds_client = get_idds_client(self.config)

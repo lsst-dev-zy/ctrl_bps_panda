@@ -18,8 +18,8 @@ from lsst.ctrl.bps.constants import DEFAULT_MEM_FMT, DEFAULT_MEM_UNIT
 from lsst.ctrl.bps.drivers import prepare_driver
 from lsst.ctrl.bps.panda.constants import PANDA_DEFAULT_MAX_COPY_WORKERS
 from lsst.ctrl.bps.panda.utils import copy_files_for_distribution, get_idds_client
-from lsst.utils.timer import time_this
 from lsst.resources import ResourcePath
+from lsst.utils.timer import time_this
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -139,10 +139,8 @@ config, bps_workflow = create_idds_workflow(config_file, compute_site)
 idds_workflow = bps_workflow.idds_client_workflow
 
 _, max_copy_workers = config.search("maxCopyWorkers", opt={"default": PANDA_DEFAULT_MAX_COPY_WORKERS})
-file_distribution_uri = ResourcePath(config["fileDistributionEndPoint"])
-copy_files_for_distribution(
-    bps_workflow.files_to_pre_stage, file_distribution_uri, max_copy_workers
-)
+file_distribution_uri = ResourcePath(config["fileDistributionEndPoint"], forceDirectory=True)
+copy_files_for_distribution(bps_workflow.files_to_pre_stage, file_distribution_uri, max_copy_workers)
 
 idds_client = get_idds_client(config)
 ret = idds_client.update_build_request(request_id, signature, idds_workflow)

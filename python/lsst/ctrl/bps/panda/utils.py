@@ -99,8 +99,9 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
                 file_name = file.basename()
                 files_to_copy[file] = folder_uri.join(file_name)
         else:
-            files_to_copy[ResourcePath(local_pfn)] = file_distribution_uri.join(folder_name)
-  
+            folder_uri = file_distribution_uri.join(folder_name, forceDirectory=False)
+            files_to_copy[ResourcePath(local_pfn, forceDirectory=False)] = folder_uri
+
     copy_executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_copy_workers)
     future_file_copy = []
     for src, trgt in files_to_copy.items():
