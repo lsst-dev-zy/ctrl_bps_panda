@@ -376,10 +376,12 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
         # Docstring inherited from BaseWmsWorkflow.from_generic_workflow.
         wms_workflow = cls(generic_workflow.name, config)
 
+        '''zy
         files, dag_sink_work, task_count = add_idds_work(
             config, generic_workflow, wms_workflow.idds_client_workflow
         )
         wms_workflow.files_to_pre_stage.update(files)
+        '''
 
         files = add_final_idds_work(
             config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1

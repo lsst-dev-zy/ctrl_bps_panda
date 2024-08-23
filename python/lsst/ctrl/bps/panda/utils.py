@@ -393,11 +393,13 @@ def add_final_idds_work(
             {"name": pseudo_filename, "submitted": False, "dependencies": []}
         )
         idds_client_workflow.add_work(dag_final_work)
+        '''zy
         conditions = []
         for work in dag_sink_work:
             conditions.append(work.is_terminated)
         and_cond = AndCondition(conditions=conditions, true_works=[dag_final_work])
         idds_client_workflow.add_condition(and_cond)
+        '''
     else:
         _LOG.debug("No final job in GenericWorkflow")
     return files
