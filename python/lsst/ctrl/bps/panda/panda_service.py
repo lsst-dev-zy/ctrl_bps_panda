@@ -382,6 +382,7 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
         )
         wms_workflow.files_to_pre_stage.update(files)
         '''
+        task_count = 0
         dag_sink_work = []
 
         files = add_final_idds_work(
