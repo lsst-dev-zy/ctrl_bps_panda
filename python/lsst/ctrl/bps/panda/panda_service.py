@@ -41,7 +41,6 @@ from idds.workflowv2.workflow import Workflow as IDDS_client_workflow
 from lsst.ctrl.bps import BaseWmsService, BaseWmsWorkflow, WmsRunReport, WmsStates
 from lsst.ctrl.bps.panda.constants import PANDA_DEFAULT_MAX_COPY_WORKERS
 from lsst.ctrl.bps.panda.utils import (
-    add_custom_idds_work,
     add_final_idds_work,
     add_idds_work,
     copy_files_for_distribution,
@@ -385,16 +384,10 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
             )
             wms_workflow.files_to_pre_stage.update(files)
 
-            files = add_final_idds_work(
-                config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1
-            )
-            wms_workflow.files_to_pre_stage.update(files)
-
-        else:
-            files = add_custom_idds_work(
-                config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1
-            )
-            wms_workflow.files_to_pre_stage.update(files)
+        files = add_final_idds_work(
+            config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1
+        )
+        wms_workflow.files_to_pre_stage.update(files)
 
         return wms_workflow
 
