@@ -374,7 +374,7 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
     @classmethod
     def from_generic_workflow(cls, config, generic_workflow, out_prefix, service_class):
         # Docstring inherited from BaseWmsWorkflow.from_generic_workflow.
-        _, submit_cmd = config.search("submitCmd", opt={"default": false}) 
+        _, submit_cmd = config.search("submitCmd", opt={"default": False}) 
 
         wms_workflow = cls(generic_workflow.name, config)
 
