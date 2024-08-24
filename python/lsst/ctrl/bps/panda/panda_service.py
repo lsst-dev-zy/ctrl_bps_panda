@@ -392,6 +392,7 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
             for k,v in files.items():
                 if "runQgraphFile" in k:
                     files.pop(k)
+                    break
 
         wms_workflow.files_to_pre_stage.update(files)
 
