@@ -1,4 +1,0 @@
-# -*- python -*-
-
-from lsst.sconsUtils import env, scripts
-scripts.BasicSConscript.tests(pyList=[])
