@@ -375,7 +375,8 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
     def from_generic_workflow(cls, config, generic_workflow, out_prefix, service_class):
         # Docstring inherited from BaseWmsWorkflow.from_generic_workflow.
         wms_workflow = cls(generic_workflow.name, config)
-
+        _, submit_cmd = config.search("submitCmd", opt={"default": False})
+        
         task_count = 0
         dag_sink_work = []
         if not submit_cmd:
