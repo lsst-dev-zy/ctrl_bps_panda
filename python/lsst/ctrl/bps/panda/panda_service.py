@@ -388,6 +388,11 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
         files = add_final_idds_work(
             config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1
         )
+        if submit_cmd:
+            for k,v in files.items():
+                if "runQgraphFile" in k:
+                    files.pop(k)
+
         wms_workflow.files_to_pre_stage.update(files)
 
         return wms_workflow

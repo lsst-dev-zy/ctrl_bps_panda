@@ -277,12 +277,8 @@ def _make_doma_work(config, generic_workflow, gwjob, task_count, task_chunk):
         gwjob.name,
         generic_workflow.get_job_inputs(gwjob.name) + generic_workflow.get_job_outputs(gwjob.name),
     )
-    
-    _, submit_cmd = config.search("submitCmd", opt={"default": False})
-    
+
     for gwfile in generic_workflow.get_job_inputs(gwjob.name, transfer_only=True):
-        if "runQgraphFile" in gwfile.name and submit_cmd:
-            continue
         local_pfns[gwfile.name] = gwfile.src_uri
         if os.path.isdir(gwfile.src_uri):
             # this is needed to make isdir function working
@@ -379,7 +375,7 @@ def add_final_idds_work(
 
     # If final job exists in generic workflow, create DAG final job
     if submit_cmd:
-       final = generic_workflow.get_custom()
+        final = generic_workflow.get_custom()
     else:
         final = generic_workflow.get_final()
     if final:
