@@ -277,7 +277,11 @@ def _make_doma_work(config, generic_workflow, gwjob, task_count, task_chunk):
         gwjob.name,
         generic_workflow.get_job_inputs(gwjob.name) + generic_workflow.get_job_outputs(gwjob.name),
     )
-
+    
+    _, submit_cmd = config.search("submitCmd", opt={"default": False})
+    if "runQgraphFile" in gwfile.name and submit_cmd:
+            continue
+    
     for gwfile in generic_workflow.get_job_inputs(gwjob.name, transfer_only=True):
         local_pfns[gwfile.name] = gwfile.src_uri
         if os.path.isdir(gwfile.src_uri):
