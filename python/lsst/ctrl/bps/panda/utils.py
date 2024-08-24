@@ -376,7 +376,8 @@ def add_final_idds_work(
     # If final job exists in generic workflow, create DAG final job
     if submit_cmd:
        final = generic_workflow.get_custom()
-    final = generic_workflow.get_final()
+    else:
+        final = generic_workflow.get_final()
     if final:
         if isinstance(final, GenericWorkflow):
             raise NotImplementedError("PanDA plugin does not support a workflow as the final job")
