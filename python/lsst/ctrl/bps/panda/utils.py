@@ -279,8 +279,6 @@ def _make_doma_work(config, generic_workflow, gwjob, task_count, task_chunk):
     )
 
     for gwfile in generic_workflow.get_job_inputs(gwjob.name, transfer_only=True):
-        if "runQgraphFile" in gwfile.name:
-            continue
         local_pfns[gwfile.name] = gwfile.src_uri
         if os.path.isdir(gwfile.src_uri):
             # this is needed to make isdir function working
@@ -372,9 +370,12 @@ def add_final_idds_work(
     TypeError
         Raised if final job in GenericWorkflow is invalid type.
     """
+    _, submit_cmd = config.search("submitCmd", opt={"default": False})
     files = {}
 
     # If final job exists in generic workflow, create DAG final job
+    if submit_cmd:
+       final = generic_workflow.get_custom()
     final = generic_workflow.get_final()
     if final:
         if isinstance(final, GenericWorkflow):
@@ -395,13 +396,11 @@ def add_final_idds_work(
             {"name": pseudo_filename, "submitted": False, "dependencies": []}
         )
         idds_client_workflow.add_work(dag_final_work)
-        '''zy
         conditions = []
         for work in dag_sink_work:
             conditions.append(work.is_terminated)
         and_cond = AndCondition(conditions=conditions, true_works=[dag_final_work])
         idds_client_workflow.add_condition(and_cond)
-        '''
     else:
         _LOG.debug("No final job in GenericWorkflow")
     return files
