@@ -279,10 +279,10 @@ def _make_doma_work(config, generic_workflow, gwjob, task_count, task_chunk):
     )
     
     _, submit_cmd = config.search("submitCmd", opt={"default": False})
-    if "runQgraphFile" in gwfile.name and submit_cmd:
-            continue
     
     for gwfile in generic_workflow.get_job_inputs(gwjob.name, transfer_only=True):
+        if "runQgraphFile" in gwfile.name and submit_cmd:
+            continue
         local_pfns[gwfile.name] = gwfile.src_uri
         if os.path.isdir(gwfile.src_uri):
             # this is needed to make isdir function working
