@@ -376,7 +376,7 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
         # Docstring inherited from BaseWmsWorkflow.from_generic_workflow.
         wms_workflow = cls(generic_workflow.name, config)
         _, submit_cmd = config.search("submitCmd", opt={"default": False})
-        
+
         task_count = 0
         dag_sink_work = []
         if not submit_cmd:
@@ -389,7 +389,7 @@ class PandaBpsWmsWorkflow(BaseWmsWorkflow):
             config, generic_workflow, wms_workflow.idds_client_workflow, dag_sink_work, task_count + 1, 1
         )
         if submit_cmd:
-            for k,v in files.items():
+            for k, v in files.items():
                 if "runQgraphFile" in k:
                     files.pop(k)
                     break
