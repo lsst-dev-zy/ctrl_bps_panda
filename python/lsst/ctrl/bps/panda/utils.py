@@ -585,6 +585,7 @@ def add_idds_work(config, generic_workflow, idds_workflow):
     job_to_task = {}
     job_to_pseudo_filename = {}
     task_count = 0  # Task number/ID in idds workflow used for unique name
+    remote_filename = None
 
     if submit_cmd:
         files = []
