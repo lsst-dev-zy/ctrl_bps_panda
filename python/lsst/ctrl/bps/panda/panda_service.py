@@ -68,6 +68,7 @@ class PanDAService(BaseWmsService):
     def submit(self, workflow, **kwargs):
         config = kwargs["config"] if "config" in kwargs else None
         remote_build = kwargs["remote_build"] if "remote_build" in kwargs else None
+        _, submit_cmd = config.search("submitCmd", opt={"default": False})
 
         if config and remote_build:
             _LOG.info("remote build")
@@ -87,6 +88,7 @@ class PanDAService(BaseWmsService):
             _LOG.info("Submitted into iDDs with request id=%s", request_id)
             idds_build_workflow.run_id = request_id
             return idds_build_workflow
+
         else:
             _, max_copy_workers = self.config.search(
                 "maxCopyWorkers", opt={"default": PANDA_DEFAULT_MAX_COPY_WORKERS}
@@ -96,14 +98,19 @@ class PanDAService(BaseWmsService):
             lsst_temp = "LSST_RUN_TEMP_SPACE"
             if lsst_temp in file_distribution_uri and lsst_temp not in os.environ:
                 file_distribution_uri = self.config["fileDistributionEndPointDefault"]
-            copy_files_for_distribution(
-                workflow.files_to_pre_stage,
-                ResourcePath(file_distribution_uri, forceDirectory=True),
-                max_copy_workers,
-            )
 
+            if not submit_cmd:
+                copy_files_for_distribution(
+                    workflow.files_to_pre_stage,
+                    ResourcePath(file_distribution_uri, forceDirectory=True),
+                    max_copy_workers,
+                )
+            #'''
             idds_client = get_idds_client(self.config)
-            ret = idds_client.submit(workflow.idds_client_workflow, username=None, use_dataset_name=False)
+            ret = idds_client.submit(
+                      workflow.idds_client_workflow,
+                      username=None,
+                      use_dataset_name=False)
             _LOG.debug("iDDS client manager submit returned = %s", ret)
 
             # Check submission success
@@ -111,10 +118,13 @@ class PanDAService(BaseWmsService):
             if status:
                 request_id = int(result)
             else:
-                raise RuntimeError(f"Error submitting to PanDA service: {error}")
+                raise RuntimeError(
+                         f"Error submitting to PanDA service: {error}"
+                      )
 
             _LOG.info("Submitted into iDDs with request id=%s", request_id)
             workflow.run_id = request_id
+            #'''
 
     def restart(self, wms_workflow_id):
         # Docstring inherited from BaseWmsService.restart.

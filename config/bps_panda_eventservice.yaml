@@ -1,0 +1,10 @@
+# enable EventService to have multiple payloads per PanDA job
+
+# list of bps job labels to enable EventService
+enableEventService: isr,step1
+
+# When EventService is enabled, if requestWalltime and maxWmsJobWalltime are defined,
+# max_payloads_per_panda_job = int(maxWmsJobWalltime / requestWalltime)
+# Otherwise max_payloads_per_panda_job = int(maxPayloadsPerPandaJob)
+maxWmsJobWalltime: 21600
+maxPayloadsPerPandaJob: 10

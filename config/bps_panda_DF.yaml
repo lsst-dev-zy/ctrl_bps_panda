@@ -29,10 +29,6 @@ jobContainer: >
   /bin/bash -c "{payloadCommand}" >&2;
 jobCleanup: "rm -fr EXEC_REPO-*;"
 
-
-# Specify memory request for executionButler, pipetaskInit and forcedPhotCoadd, placeholder for now
-executionButler:
-  queue: "Rubin_Merge"
-
+# Specify memory request, queue for finalJob
 finalJob:
   queue: "Rubin_Merge"

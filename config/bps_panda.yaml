@@ -26,6 +26,7 @@ payloadCommand: >
   ls -al;
   {setupLSSTEnv}
   pwd;
+  export RUBIN_ES_MAP_FILE=orderIdMapFilename;
   python3 \${CTRL_BPS_PANDA_DIR}/python/lsst/ctrl/bps/panda/edgenode/cmd_line_decoder.py _cmd_line_ & pJob=\$!;
   prmon -i 5
   -f ${logDir}/memory_monitor_output.txt
