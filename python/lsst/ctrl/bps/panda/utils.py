@@ -343,6 +343,8 @@ def _make_doma_work(
     lsst_temp = "LSST_RUN_TEMP_SPACE"
     if lsst_temp in file_distribution_end_point and lsst_temp not in os.environ:
         file_distribution_end_point = file_distribution_end_point_default
+    if submit_cmd and not file_distribution_end_point:
+        file_distribution_end_point = "FileDistribution"
 
     executable = add_decoder_prefix(
         config, cmd_line, file_distribution_end_point, (local_pfns, direct_io_files)
