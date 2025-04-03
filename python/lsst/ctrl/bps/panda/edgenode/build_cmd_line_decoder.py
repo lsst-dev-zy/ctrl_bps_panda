@@ -20,7 +20,6 @@ from lsst.ctrl.bps.panda.constants import PANDA_DEFAULT_MAX_COPY_WORKERS
 from lsst.ctrl.bps.panda.utils import copy_files_for_distribution, download_extract_archive, get_idds_client
 from lsst.resources import ResourcePath
 from lsst.utils.timer import time_this
-from lsst.ctrl.bps import BpsSubprocessError
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -57,7 +56,7 @@ def create_idds_workflow(config_file, compute_site):
         ):
             wms_workflow_config, wms_workflow = prepare_driver(config_file, **kwargs)
         return wms_workflow_config, wms_workflow
-    except Exception as e:
+    except Exception:
         raise
 
 # download the submission tarball

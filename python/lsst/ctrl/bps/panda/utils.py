@@ -877,7 +877,7 @@ def create_idds_build_workflow(**kwargs):
     task_site = get_task_parameter(config, remote_build, "computeSite")
     task_queue = get_task_parameter(config, remote_build, "queue")
     task_rss = get_task_parameter(config, remote_build, "requestMemory")
-    memory_multiplier = get_task_parameter(config, remote_build, "memoryMultiplier") 
+    memory_multiplier = get_task_parameter(config, remote_build, "memoryMultiplier")
     task_rss_retry_step = task_rss * memory_multiplier if memory_multiplier else 0
     task_rss_retry_offset = 0 if task_rss_retry_step else task_rss
     nretries = get_task_parameter(config, remote_build, "numberOfRetries")
