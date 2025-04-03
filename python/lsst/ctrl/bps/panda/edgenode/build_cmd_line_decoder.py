@@ -12,6 +12,7 @@ import datetime
 import logging
 import os
 import sys
+#import re
 
 from lsst.ctrl.bps.constants import DEFAULT_MEM_FMT, DEFAULT_MEM_UNIT
 from lsst.ctrl.bps.drivers import prepare_driver
@@ -19,6 +20,7 @@ from lsst.ctrl.bps.panda.constants import PANDA_DEFAULT_MAX_COPY_WORKERS
 from lsst.ctrl.bps.panda.utils import copy_files_for_distribution, download_extract_archive, get_idds_client
 from lsst.resources import ResourcePath
 from lsst.utils.timer import time_this
+from lsst.ctrl.bps import BpsSubprocessError
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -43,18 +45,20 @@ def create_idds_workflow(config_file, compute_site):
     kwargs = {}
     if compute_site:
         kwargs["compute_site"] = compute_site
-    with time_this(
-        log=_LOG,
-        level=logging.INFO,
-        prefix=None,
-        msg="Completed entire submission process",
-        mem_usage=True,
-        mem_unit=DEFAULT_MEM_UNIT,
-        mem_fmt=DEFAULT_MEM_FMT,
-    ):
-        wms_workflow_config, wms_workflow = prepare_driver(config_file, **kwargs)
-    return wms_workflow_config, wms_workflow
-
+    try:
+        with time_this(
+            log=_LOG,
+            level=logging.INFO,
+            prefix=None,
+            msg="Completed entire submission process",
+            mem_usage=True,
+            mem_unit=DEFAULT_MEM_UNIT,
+            mem_fmt=DEFAULT_MEM_FMT,
+        ):
+            wms_workflow_config, wms_workflow = prepare_driver(config_file, **kwargs)
+        return wms_workflow_config, wms_workflow
+    except Exception as e:
+        raise
 
 # download the submission tarball
 remote_filename = sys.argv[1]
@@ -82,7 +86,17 @@ current_dir = os.getcwd()
 
 print(f"INFO: current dir: {current_dir}")
 
-config, bps_workflow = create_idds_workflow(config_file, compute_site)
+try:
+    config, bps_workflow = create_idds_workflow(config_file, compute_site)
+except SystemExit as e:
+    print(f"BPS prepare stage exit with code {e.code}")
+    sys.exit(e.code)
+except Exception as e:
+    #exit_code = int(re.search(r"\((-?\d+)\)", e).group(1))
+    exit_code = e.errno
+    print(f"Unexpected error: {e}, code: {exit_code}")
+    sys.exit(128 + abs(exit_code))
+print("The generic workflow is successfully generated")
 idds_workflow = bps_workflow.idds_client_workflow
 
 _, max_copy_workers = config.search("maxCopyWorkers", opt={"default": PANDA_DEFAULT_MAX_COPY_WORKERS})
