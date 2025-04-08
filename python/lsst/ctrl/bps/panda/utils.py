@@ -277,6 +277,13 @@ def _make_doma_work(
         "fileDistributionEndPointDefault", opt={"curvals": cvals, "default": None}
     )
 
+    _, force_local_qgraph_file = config.search(
+        "forceLocalQgraphFile", opt={"curvals": cvals, "default": False}
+    )
+    if not force_local_qgraph_file:
+        _, res = config.search(gwjob.label)
+        force_local_qgraph_file = res['forceLocalQgraphFile'] if res and res['forceLocalQgraphFile'] else False
+
     task_rss = gwjob.request_memory if gwjob.request_memory else PANDA_DEFAULT_RSS
     task_rss_retry_step = task_rss * gwjob.memory_multiplier if gwjob.memory_multiplier else 0
     task_rss_retry_offset = 0 if task_rss_retry_step else task_rss
@@ -352,7 +359,10 @@ def _make_doma_work(
             local_pfns[gwfile.name] += "/"
 
         if gwfile.job_access_remote:
-            direct_io_files.add(gwfile.name)
+            if force_local_qgraph_file:
+                direct_io_files.add('copyQG')
+            else:
+                direct_io_files.add(gwfile.name)
 
     submit_cmd = generic_workflow.run_attrs.get("bps_iscustom", False)
 
