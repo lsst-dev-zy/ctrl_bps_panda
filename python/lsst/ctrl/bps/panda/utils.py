@@ -282,7 +282,7 @@ def _make_doma_work(
     )
     if not force_local_qgraph_file:
         _, res = config.search(gwjob.label)
-        force_local_qgraph_file = res['forceLocalQgraphFile'] if res and res['forceLocalQgraphFile'] else False
+        force_local_qgraph_file = res['forceLocalQgraphFile'] if 'forceLocalQgraphFile' in res else False
 
     task_rss = gwjob.request_memory if gwjob.request_memory else PANDA_DEFAULT_RSS
     task_rss_retry_step = task_rss * gwjob.memory_multiplier if gwjob.memory_multiplier else 0
