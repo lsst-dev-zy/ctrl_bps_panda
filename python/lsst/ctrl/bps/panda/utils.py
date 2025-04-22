@@ -888,8 +888,14 @@ def create_idds_build_workflow(**kwargs):
     task_rss = get_task_parameter(config, remote_build, "requestMemory")
     nretries = get_task_parameter(config, remote_build, "numberOfRetries")
     processing_type = get_task_parameter(config, remote_build, "processingType")
+
+    max_name_length=4000
+    if "IDDS_MAX_NAME_LENGTH" in os.environ:
+        max_name_length = int(os.environ['IDDS_MAX_NAME_LENGTH'])
+
     _LOG.info("requestMemory: %s", task_rss)
     _LOG.info("Site: %s", task_site)
+    _LOG.info("MaxNameLength: %s", max_name_length)
     # _LOG.info("executable: %s", executable)
     # TODO: fill other parameters based on config
     build_work = DomaPanDAWork(
