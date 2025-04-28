@@ -113,6 +113,7 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
     future_file_copy = []
     for src, trgt in files_to_copy.items():
         _LOG.debug("Staging %s to %s", src, trgt)
+        print(f"Staging {src} to {trgt}")
         # S3 clients explicitly instantiate here to overpass this
         # https://stackoverflow.com/questions/52820971/is-boto3-client-thread-safe
         trgt.exists()
