@@ -9,7 +9,7 @@ remoteBuild:
     source /cvmfs/sw.lsst.eu/almalinux-x86_64/lsst_distrib/{LSST_VERSION}/loadLSST.bash;
     pwd;ls -al;
     setup lsst_distrib;
-    echo "setup tokens";
+    echo $BASH_ENV;
     if [[ ! -z "${PANDA_AUTH_DIR}" ]] && [[ ! -z "${PANDA_AUTH_ORIGIN}" ]];
     then export PANDA_AUTH_ID_TOKEN=$(cat $PANDA_AUTH_DIR);
     export PANDA_AUTH_VO=$PANDA_AUTH_ORIGIN;
