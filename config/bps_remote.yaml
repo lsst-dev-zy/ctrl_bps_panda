@@ -5,7 +5,6 @@ remoteBuild:
     chmod ugo+w ${logDir};
     file=${logDir}/memory_monitor_output.txt; touch ${file}; chmod ugo+w ${file};
     file=${logDir}/memory_monitor_summary.json; touch ${file}; chmod ugo+w ${file};
-    export SHELL=/bin/bash;
     unset PYTHONPATH;
     source /cvmfs/sw.lsst.eu/almalinux-x86_64/lsst_distrib/{LSST_VERSION}/loadLSST.bash;
     pwd;ls -al;
