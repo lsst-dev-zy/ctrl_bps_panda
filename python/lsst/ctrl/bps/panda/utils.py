@@ -216,9 +216,7 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
         _LOG.info("Staging %s to %s", src, trgt)
         # S3 clients explicitly instantiate here to overpass this
         # https://stackoverflow.com/questions/52820971/is-boto3-client-thread-safe
-        # trgt.exists()
-        if not trgt.exists():
-            raise RuntimeError(f"Destination does not exist: {trgt}")
+        trgt.exists()
         future_file_copy.append(copy_executor.submit(trgt.transfer_from, src, transfer="copy"))
 
     for future in concurrent.futures.as_completed(future_file_copy):
