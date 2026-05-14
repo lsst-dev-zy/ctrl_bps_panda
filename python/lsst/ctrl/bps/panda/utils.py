@@ -192,6 +192,11 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
     """
     files_to_copy = {}
 
+    _LOG.info("files_to_stage count: %d", len(files_to_stage))
+    if not files_to_stage:
+        _LOG.warning("No files to stage - skipping copy")
+        return  # Early return, no error
+
     # In case there are folders we iterate over its content
     for local_pfn in files_to_stage.values():
         folder_name = os.path.basename(os.path.normpath(local_pfn))
@@ -211,13 +216,18 @@ def copy_files_for_distribution(files_to_stage, file_distribution_uri, max_copy_
         _LOG.debug("Staging %s to %s", src, trgt)
         # S3 clients explicitly instantiate here to overpass this
         # https://stackoverflow.com/questions/52820971/is-boto3-client-thread-safe
-        trgt.exists()
+        # trgt.exists()
+        if not trgt.exists():
+            raise RuntimeError(f"Destination does not exist: {trgt}")
         future_file_copy.append(copy_executor.submit(trgt.transfer_from, src, transfer="copy"))
 
     for future in concurrent.futures.as_completed(future_file_copy):
-        if future.result() is not None:
-            raise RuntimeError("Error of placing files to the distribution point")
-
+        #if future.result() is not None:
+        #    raise RuntimeError("Error of placing files to the distribution point")
+        try:
+            future.result()
+        except Exception as e:
+            raise RuntimeError(f"Error copying files to distribution point: {e}") from e
 
 def get_idds_client(config):
     """Get the idds client.
